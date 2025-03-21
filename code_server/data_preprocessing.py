@@ -34,8 +34,11 @@ class Data():
 
     def load(self):
         # to do list: build the json file for each stock
-        self.closing = load_data_structure(self.closing_path)
+        self.closing = load_data_structure(self.closing_path) 
+        # ! 30min close price
         self.state_space = load_data_structure(self.states_path)
+        #! 30min state:     len=9
+        
         # print(len(self.state_space))
         self.it = self.iterator()
 
@@ -45,20 +48,20 @@ class Data():
 
     def iterator(self):
         d = deque()
-        for v in zip(self.closing[7:], self.state_space):
+        for v in zip(self.closing[7:], self.state_space): #! time alignment 
         # for v in zip(self.closing[7:], self.state_space):
-            closing = v[0][1]
+            closing = v[0][1]#! close price
             time = time_features(parse_time(v[0][0]))
-            features = v[1][1]
+            features = v[1][1] #! state space len=8
             features_total = features
-            features_total.extend(time)
+            features_total.extend(time) #! 8+3=11  
 
             d.append(features_total)
             while len(d) > self.T:
                 d.popleft()
 
             if len(d) == self.T:
-                yield closing, list(d)
+                yield closing, list(d)  #! len(d) =T ,so d is 96*11. If we regard T as the window size, d can be seen as a sequence of data.
 
     def reset(self):
         self.it = self.iterator()

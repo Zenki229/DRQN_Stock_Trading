@@ -46,13 +46,13 @@ class Agent:
 
 		tensor = torch.FloatTensor(state).to(device)
 		tensor = tensor.unsqueeze(0)
-		options = self.target_net(tensor)
+		options = self.target_net(tensor) # tensor dim =1*T*14 , options dim = T * 3
 		# options = self.policy_net(tensor)
 		return (np.argmax(options[-1].detach().cpu().numpy()) - 1)
 		# return (np.argmax(options[0].detach().numpy()) - 1)
 
 	def store(self, state, actions, new_states, rewards, action, step):
-		if step < 1000: # soft update
+		if step < 1000: # soft update 	before 1000 steps we use exploration.
 			for n in range(len(actions)):
 				self.memory.push(state, actions[n], new_states[n], rewards[n])
 		else:

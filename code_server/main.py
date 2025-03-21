@@ -24,14 +24,14 @@ def training(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='DQN_Trading')
-    parser.add_argument('--root_path', type=str, default='./', help="root path")
+    parser.add_argument('--root_path', type=str, default='./code_server', help="root path")
     parser.add_argument('--gpu_id', type=str, default='0', help="device id to run")
     parser.add_argument('--bs', type=int, default=16, help="training batch size")
     parser.add_argument('--lr', type=float, default=0.00025, help="training learning rate")
     parser.add_argument('--gamma', type=float, default=0.001, help="the discount factor of Q learning")
     parser.add_argument('--n_units', type=int, default=32, help="the number of units in a hidden layer")
     parser.add_argument('--T', type=int, default=96, help="the length of series data")
-    parser.add_argument('--stock', type=str, default='AIG', help="determine which stock")
+    parser.add_argument('--stock', type=str, default='ABB', help="determine which stock")
     parser.add_argument('--seed', type=int, default=2037, help="random seed")
     parser.add_argument('--para_target', type=float, default=0.001, help="the parameter which controls the soft update")
 
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     torch.cuda.manual_seed(SEED)
     np.random.seed(SEED)
     random.seed(SEED)
-    file_path = './data_closing/'
+    file_path = './code_server/data_closing/'
     datafile_list = os.listdir(file_path)
     for i in range(0, len(datafile_list)):
         args.stock = datafile_list[i][0:3]

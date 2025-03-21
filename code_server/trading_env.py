@@ -18,10 +18,13 @@ class TradingEnv:
         self.trade_size = 10000
 
     def merge_state_action(self, state, a_variable):
-        T = len(state)
+        '''
+        Extend state with action, state_init dim =T*11 -> T*14
+        '''
+        T = len(state) #! len(state)=96 windowsize
         actions_for_state = self.actions[self.data.n:][:T-1] 
         actions_for_state.append(a_variable)
-
+        #! In the intial statge, actions_for_state is empty
         diff = T - len(actions_for_state)
         if diff > 0:
             actions_for_state.extend([a_variable] * diff)
@@ -31,7 +34,7 @@ class TradingEnv:
             new_s = deepcopy(s)
             new_s.extend(hot_encoding(a))
             result.append(new_s)
-
+        #! each state dim +3 =14 
         result = np.asarray(result)
         return result
 
@@ -40,7 +43,7 @@ class TradingEnv:
         self.portfolio = [float(self.initial_value)]
         self.data.reset()
         self.actions.append(0) 
-        closing, state_initial = self.data.next()
+        closing, state_initial = self.data.next() #! price, len(state_initial)=T*11
         self.prev_close = closing
         return self.merge_state_action(state_initial, 0)
 
@@ -59,6 +62,7 @@ class TradingEnv:
         new_states = []
         for a in actions:
             new_states.append(self.merge_state_action(state_next, a))
+        # we have new_states corresponding to all actions
 
         current_closed = closing
         if self.prev_close is not None:
@@ -71,7 +75,7 @@ class TradingEnv:
         for a in actions:
             commission = self.trade_size * np.abs(a - self.actions[-1]) * self.spread
             v_new.append(v_old + a * self.trade_size * (current_closed - current_open) - commission)
-
+        # v_new store all the portfolio when we take all actions
         v_new = np.asarray(v_new)
         rewards = []
         for i in range(len(v_new)):
@@ -86,7 +90,7 @@ class TradingEnv:
         self.actions.append(int(action))
         self.portfolio.append(float(v_new[action+1]))
 
-        return actions, rewards, new_states, new_states[action+1], done
+        return actions, rewards, new_states, new_states[action+1], done # Return two type of new_states, one is all values of actions, the other is selected action. 
 
     def print_stats(self, args):
         save_data_structure(self.actions, './results/action/' + args.stock + "_gamma_{:.4f}_action.json".format(0.1))
